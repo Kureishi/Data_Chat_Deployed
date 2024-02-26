@@ -10,6 +10,9 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGener
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import AIMessage, HumanMessage
 
+import wx
+import atexit
+
 # load environment variables (GOOGLE_API_KEY)
 from dotenv import load_dotenv
 load_dotenv()
@@ -112,6 +115,40 @@ def display_messages():
             with st.chat_message("Human"):
                 st.write(message.content)
 
+# disable threading alerts when close file explorer window
+def disable_asserts():
+    import wx
+    wx.DisableAsserts()
+
+# define how to write chat_history to textfile in specific directory
+def chat_to_textfile(chat_history, file_path):
+    text_file = open(file=file_path, mode='w')
+    for i in range(len(chat_history)):
+        if i%2 == 0:
+            text_file.write('AIMessage(' + str(chat_history[i]) + ')\n')
+        else:
+            text_file.write('HumanMessage(' + str(chat_history[i]) + ')\n')
+    text_file.close()
+
+# get the directory to save history in and write chat_history to chat_history.txt
+def save_chat_history():
+    atexit.register(disable_asserts)
+    app = wx.App()
+    dialog = wx.DirDialog(None, message='Choose folder to save history in:', style=wx.DD_DEFAULT_STYLE | wx.DD_NEW_DIR_BUTTON | wx.STAY_ON_TOP)
+    if dialog.ShowModal() == wx.ID_OK:  # once user selects folder and presses OK
+        folder_path = dialog.GetPath()
+        full_path = os.path.join(folder_path, "chat_history.txt")
+        dialog.Show()
+        app.MainLoop()
+        st.write(f"Saved chat history to path: {full_path}")
+        del app
+    chat_to_textfile(chat_history=st.session_state.chat_history, file_path=full_path)
+
+# save the chat history to a text file if button pressed
+def save_button():
+    if st.button('Save Chat History to Text File'):
+        save_chat_history()
+
 # ----------------- UI ----------------------------
 st.set_page_config(page_title="Data Chatter", page_icon="🤖")
 st.title("Query Your Data")
@@ -152,6 +189,7 @@ if selected_option == "Webpage":
             web_response
             ])
         display_messages()
+        save_button()
 
 # if PDF -> extract contents into Documents -> embed into vectorstore -> get response to query using vectorstore (and chat_history)
 elif selected_option == "PDF":
@@ -176,4 +214,4 @@ elif selected_option == "PDF":
             pdf_response
             ])
         display_messages()
-
+        save_button()
