@@ -15,7 +15,7 @@ The app uses Gemini-Pro 1.0, however it should be straight-forward to opt it out
 ### Caution
 Google Gemini Pro currently has location restrictions. Refer to https://ai.google.dev/available_regions to see if your region is supported.
 If not, consider using a VPN or switch the embeddings and llm initialization with another desired model.
-```
+```python
 embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001')
 llm = ChatGoogleGenerativeAI(model='gemini-pro', temperature=0, convert_system_message_to_human=True)
 ```
