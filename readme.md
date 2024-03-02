@@ -5,9 +5,10 @@ The app uses Gemini-Pro 1.0, however it should be straight-forward to opt it out
 
 #### Create Virtual Environment (Recommended to use Conda Environment)
 
+```
 - conda create -n "env_name" python=3.9.15
 - activate environment then cd into this directory
 - pip install -r requirements.txt
-
+```
 
 #### Caution
