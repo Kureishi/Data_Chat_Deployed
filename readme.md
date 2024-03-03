@@ -30,3 +30,5 @@ Run Command from same directory as Dockerfile: docker build -t <name_of_image> .
 Check Image is Created: docker images
 Run App: docker run -p 8501:8501 <name_of_image>
 ```
+Note that since the "GOOGLE_API_KEY" needs to be set in a .env file, it is suggested that docker-compose also be utilized.
+More information can be found here: https://docs.docker.com/compose/environment-variables/set-environment-variables/

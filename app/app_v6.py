@@ -15,8 +15,8 @@ import wx
 import atexit
 
 # load environment variables (GOOGLE_API_KEY)
-from dotenv import load_dotenv
-load_dotenv()
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
 # get extracted text from specified webpage as Documents
 def extract_web_text(url):
