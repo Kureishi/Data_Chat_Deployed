@@ -19,3 +19,5 @@ If not, consider using a VPN or switch the embeddings and llm initialization wit
 embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001')
 llm = ChatGoogleGenerativeAI(model='gemini-pro', temperature=0, convert_system_message_to_human=True)
 ```
+
+Store your Google API Key in a .env folder using keyword: "GOOGLE_API_KEY"
