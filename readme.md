@@ -20,4 +20,13 @@ embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001')
 llm = ChatGoogleGenerativeAI(model='gemini-pro', temperature=0, convert_system_message_to_human=True)
 ```
 
-Store your Google API Key in a .env folder using keyword: "GOOGLE_API_KEY"
+Store your Google API Key in a .env file using keyword: "GOOGLE_API_KEY"
+
+### HOW TO RUN
+
+#### Using Docker
+```
+Run Command from same directory as Dockerfile: docker build -t <name_of_image> .
+Check Image is Created: docker images
+Run App: docker run -p 8501:8501 <name_of_image>
+```
