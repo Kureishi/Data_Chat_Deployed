@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN git clone https://github.com/Kureishi/Data_Chat_Deployed.git .
 
-RUN pip3 install -r requirements.txt
+RUN pip install -r app/requirements.txt
 
 EXPOSE 8501
 
