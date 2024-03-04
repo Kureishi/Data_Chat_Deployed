@@ -45,5 +45,5 @@ More information can be found here: https://docs.docker.com/compose/environment-
 ```
 Go To: https://chat-w-data.streamlit.app/
 
-CAUTION: Currently, all data sources work except MySQL.
+CAUTION: Currently, all data sources currently work except MySQL.
 ```
