@@ -28,7 +28,7 @@ def extract_pdf_text(pdf):
     bytes_data = pdf.read()
     with NamedTemporaryFile(delete=False) as tmp:
         tmp.write(bytes_data)
-        docs = PyPDFLoader(tmp.name, extract_images=True).load()
+        docs = PyPDFLoader(tmp.name).load()
     os.remove(tmp.name)
     return docs
 
