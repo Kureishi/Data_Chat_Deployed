@@ -27,7 +27,7 @@ Store your Google API Key in a .env file using keyword: "GOOGLE_API_KEY"
 #### Local
 ```
 Download/Clone the repository and create a .env file with your (free) GOOGLE_API_KEY
-Create a virtual environment (Python 3.9.15) and install depencies using pip install -r app/requirements.txt
+Create a virtual environment (Python 3.9.15) and install depencies using: pip install -r app/requirements.txt
 From Parent Directory, Run: streamlit run app/app_v6.py
 (Default): Go to http://localhost:8501/
 ```
