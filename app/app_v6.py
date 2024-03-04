@@ -11,18 +11,17 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 
-import wx
-import atexit
-
 # load environment variables (GOOGLE_API_KEY)
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
+
 
 # get extracted text from specified webpage as Documents
 def extract_web_text(url):
     loader = WebBaseLoader(url)
     docs = loader.load()
     return docs
+
 
 # get extracted text from specified PDF as Documents
 def extract_pdf_text(pdf):
@@ -33,6 +32,7 @@ def extract_pdf_text(pdf):
     os.remove(tmp.name)
     return docs
 
+
 # get extracted text from specified CSV as Documents
 def extract_csv_text(csv):
     bytes_data = csv.read()
@@ -42,11 +42,13 @@ def extract_csv_text(csv):
     os.remove(tmp.name)
     return docs
 
+
 # split docs into chunks
 def get_text_chunks(docs):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     chunks = text_splitter.split_documents(docs)
     return chunks
+
 
 # embed web chunks into vectorstore
 def get_web_vector_store(chunks):
@@ -54,11 +56,13 @@ def get_web_vector_store(chunks):
     vector_store = Chroma.from_documents(documents=chunks, embedding=embeddings)
     return vector_store
 
+
 # embed PDF or CSV chunks into vectorstore
 def get_file_vector_store(chunks):
     embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001')
     vector_store = FAISS.from_documents(documents=chunks, embedding=embeddings)
     return vector_store
+
 
 # get context for question (with relevant chat history) from data source
 def get_context():
@@ -77,6 +81,7 @@ def get_context():
     )
     contextualize_q_chain = contextualize_q_prompt | llm | StrOutputParser()    # get pipeline to retrieve context as a chain
     return contextualize_q_chain
+
 
 # get response using context from chat_history and current query for data source
 def get_response(vector_store):
@@ -115,10 +120,12 @@ def get_response(vector_store):
     )
     return rag_chain
 
+
 # load db using its URI
 def load_database(uri):
     database = SQLDatabase.from_uri(uri)        # connect to local MySQL instance using URI
     return database
+
 
 # get SQL query from table and user question
 def get_sql_chain(database):
@@ -144,6 +151,7 @@ def get_sql_chain(database):
         | StrOutputParser()                             # return just contents (without 'AIMessage(...))
     )
     return sql_chain
+
 
 # get natural language response of DB using SQL query and user question
 def get_sql_full_pipeline(database, sql_chain):
@@ -175,6 +183,7 @@ def get_sql_full_pipeline(database, sql_chain):
     )
     return full_chain
 
+
 # define how to display chat messages
 def display_messages():
     for message in st.session_state.chat_history:
@@ -185,65 +194,44 @@ def display_messages():
             with st.chat_message("Human"):
                 st.write(message.content)
 
-# disable threading alerts when close file explorer window
-def disable_asserts():
-    import wx
-    wx.DisableAsserts()
-
-# define how to write chat_history to textfile in specific directory
-def chat_to_textfile(chat_history, file_path):
-    text_file = open(file=file_path, mode='w')
-    for i in range(len(chat_history)):
-        if i%2 == 0:
-            text_file.write('AIMessage(' + str(chat_history[i]) + ')\n')
-        else:
-            text_file.write('HumanMessage(' + str(chat_history[i]) + ')\n')
-    text_file.close()
-
-# get the directory to save history in and write chat_history to chat_history.txt
-def save_chat_history():
-    atexit.register(disable_asserts)
-    app = wx.App()
-    dialog = wx.DirDialog(None, message='Choose folder to save history in:', style=wx.DD_DEFAULT_STYLE | wx.DD_NEW_DIR_BUTTON | wx.STAY_ON_TOP)
-    if dialog.ShowModal() == wx.ID_OK:  # once user selects folder and presses OK
-        folder_path = dialog.GetPath()
-        full_path = os.path.join(folder_path, "chat_history.txt")
-        dialog.Show()
-        app.MainLoop()
-        st.write(f"Saved chat history to path: {full_path}")
-        del app
-    chat_to_textfile(chat_history=st.session_state.chat_history, file_path=full_path)
 
 # save the chat history to a text file if button pressed
 def save_button():
-    if st.button('Save Chat History to Text File'):
-        save_chat_history()
+    text_file = open('chat_history.txt', mode='w')
+    for i in range(len(st.session_state.chat_history)):
+        if i%2 == 0:
+            text_file.write('AIMessage(' + str(st.session_state.chat_history[i]) + ')\n')
+        else:
+            text_file.write('HumanMessage(' + str(st.session_state.chat_history[i]) + ')\n')
+    text_file.close()
 
-# write SQL queries to text file
-def sql_to_textfile(sql_queries, file_path):
-    sql_file = open(file=file_path, mode='w')
-    for i in range(len(sql_queries)):
-        sql_file.write(f"{sql_queries[i]}\n\n\n")
-    sql_file.close()
+    with open('chat_history.txt') as f:
+        st.download_button(
+            label='Save Chat History to Text File',
+            data=f,
+            file_name='chat_history.txt',
+            mime='text/plain',
+        )
+    os.remove('chat_history.txt')
 
-# get the directory to save SQL Queries in and write sql_queries to sql_queries.txt
-def save_sql_queries():
-    atexit.register(disable_asserts)
-    app = wx.App()
-    dialog = wx.DirDialog(None, message='Choose folder to save history in:', style=wx.DD_DEFAULT_STYLE | wx.DD_NEW_DIR_BUTTON | wx.STAY_ON_TOP)
-    if dialog.ShowModal() == wx.ID_OK:  # once user selects folder and presses OK
-        folder_path = dialog.GetPath()
-        full_path = os.path.join(folder_path, "sql_queries.txt")
-        dialog.Show()
-        app.MainLoop()
-        st.write(f"Saved SQL Queries to path: {full_path}")
-        del app
-    sql_to_textfile(sql_queries=st.session_state.sql_queries, file_path=full_path)
 
 # save the SQL Queries to a text file if button pressed
 def download_sql():
-    if st.button('Save SQL Queries to Text File'):
-        save_sql_queries()
+    sql_file = open('sql_queries.txt', mode='w')
+    for i in range(len(st.session_state.sql_queries)):
+        sql_file.write(f"{st.session_state.sql_queries[i]}\n\n\n")
+    sql_file.close()
+
+    with open('sql_queries.txt') as f:
+        st.download_button(
+            label='Save SQL Queries to Text File',
+            data=f,
+            file_name='sql_queries.txt',
+            mime='text/plain',
+        )
+    os.remove('sql_queries.txt')
+
+
 
 # ----------------- UI ----------------------------
 st.set_page_config(page_title="Data Chatter", page_icon="🤖")
@@ -368,10 +356,10 @@ elif selected_option == "MySQL DB":
             })
             with st.spinner('Generating Response...'):
                 nat_response = get_sql_full_pipeline(database=data, sql_chain=sql_query)
-                nat_lang = nat_response.invoke({
-                    'context': st.session_state.chat_history,
-                    'question': sql_user_input              # question: pass from user
-                })
+            nat_lang = nat_response.invoke({
+                'context': st.session_state.chat_history,
+                'question': sql_user_input              # question: pass from user
+            })
             st.session_state.chat_history.extend([
                 HumanMessage(content=sql_user_input), 
                 nat_lang
