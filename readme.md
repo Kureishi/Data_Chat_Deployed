@@ -45,5 +45,6 @@ More information can be found here: https://docs.docker.com/compose/environment-
 ```
 Go To: https://chat-w-data.streamlit.app/
 
-CAUTION: Currently, all data sources currently work except MySQL.
+CAUTION: Currently, all data sources currently work on cloud except MySQL. Since the implementation of MySQL would use a local instance, it's 
+not possible to connect to localhost. 
 ```
