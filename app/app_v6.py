@@ -230,7 +230,7 @@ def download_sql():
             mime='text/plain',
         )
 
-
+# load read and parse the saved chat_history file to be used as context in st.session_state.chat_history
 def load_chat_history(hist_file):
     chat_history = hist_file.read().decode("utf-8")
 
@@ -269,10 +269,7 @@ st.title("Query Your Data")
 def custom_format(option):
     return f"{option}"
 
-# instantiate chat_history if not done already (per session)
-# if 'chat_history' not in st.session_state:
-#     st.session_state.chat_history = [AIMessage(content="Hello, I am a chatbot used to query your data. How may I assist you?")]
-
+# instantiate chat_history with a previously saved file if desired, else instantiate chat_history if not done already (per session)
 hist_file = st.file_uploader('Select Saved Chat History')
 if hist_file:
     st.session_state.chat_history = load_chat_history(hist_file=hist_file)
@@ -371,7 +368,7 @@ elif selected_option == "MySQL DB":
         st.session_state.sql_queries = ["Below are SQL Queries ran to Generate Responses: \n\n\n"]
 
     with st.sidebar:
-        st.warning('MySQL Database has to already be present in local MySQL instance', icon="⚠️")
+        st.warning('MySQL Database has to already be present in remote MySQL instance (not localhost)', icon="⚠️")
         un = st.text_input("MySQL Username", autocomplete='root', placeholder="root")
         pw = st.text_input("MySQL Password", type='password', placeholder='pass')
         pn = st.text_input("MySQL Port Number", autocomplete='3306', placeholder="3306")
