@@ -10,7 +10,7 @@ The app uses Gemini-Pro 1.0, however it should be straight-forward to opt it out
 - Load previously saved chat history to continue a conversation
 
 
-### Create Virtual Environment (Recommended to use Conda Environment)
+### Create Virtual Environment (Recommended to use Conda Environment) to Run Locally
 
 ```
 - clone this repository to a local directory
