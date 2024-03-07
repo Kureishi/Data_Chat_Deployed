@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 import streamlit as st
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import WebBaseLoader, PyPDFLoader, CSVLoader
-from langchain_community.vectorstores import Chroma, FAISS
+from langchain_community.vectorstores import FAISS
 from langchain_community.utilities import SQLDatabase
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
@@ -54,7 +54,7 @@ def get_text_chunks(docs):
 # embed web chunks into vectorstore
 def get_web_vector_store(chunks):
     embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001')
-    vector_store = Chroma.from_documents(documents=chunks, embedding=embeddings)
+    vector_store = FAISS.from_documents(documents=chunks, embedding=embeddings)
     return vector_store
 
 
