@@ -1,0 +1,9 @@
+Below are SQL Queries ran to Generate Responses: 
+
+
+
+
+
+SELECT COUNT(*) AS total_tracks FROM track;
+
+

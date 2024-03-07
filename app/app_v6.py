@@ -387,10 +387,10 @@ elif selected_option == "MySQL DB":
             })
             with st.spinner('Generating Response...'):
                 nat_response = get_sql_full_pipeline(database=data, sql_chain=sql_query)
-            nat_lang = nat_response.invoke({
-                'context': st.session_state.chat_history,
-                'question': sql_user_input              # question: pass from user
-            })
+                nat_lang = nat_response.invoke({
+                    'context': st.session_state.chat_history,
+                    'question': sql_user_input              # question: pass from user
+                })
             st.session_state.chat_history.extend([
                 HumanMessage(content=sql_user_input), 
                 nat_lang
