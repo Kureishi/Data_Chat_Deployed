@@ -368,7 +368,7 @@ elif selected_option == "MySQL DB":
         st.session_state.sql_queries = ["Below are SQL Queries ran to Generate Responses: \n\n\n"]
 
     with st.sidebar:
-        st.warning('MySQL Database has to already be present in remote MySQL instance (not localhost)', icon="⚠️")
+        st.warning('When running from Cloud, MySQL Database has to already be present in remote MySQL instance (not localhost)', icon="⚠️")
         un = st.text_input("MySQL Username", autocomplete='root', placeholder="root")
         pw = st.text_input("MySQL Password", type='password', placeholder='pass')
         pn = st.text_input("MySQL Port Number", autocomplete='3306', placeholder="3306")
