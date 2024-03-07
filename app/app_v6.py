@@ -1,9 +1,10 @@
 import os
+import re
 from tempfile import NamedTemporaryFile
 import streamlit as st
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import WebBaseLoader, PyPDFLoader, CSVLoader
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import Chroma, FAISS
 from langchain_community.utilities import SQLDatabase
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
@@ -28,7 +29,7 @@ def extract_pdf_text(pdf):
     bytes_data = pdf.read()
     with NamedTemporaryFile(delete=False) as tmp:
         tmp.write(bytes_data)
-        docs = PyPDFLoader(tmp.name).load()
+        docs = PyPDFLoader(tmp.name, extract_images=True).load()
     os.remove(tmp.name)
     return docs
 
@@ -53,7 +54,7 @@ def get_text_chunks(docs):
 # embed web chunks into vectorstore
 def get_web_vector_store(chunks):
     embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001')
-    vector_store = FAISS.from_documents(documents=chunks, embedding=embeddings)
+    vector_store = Chroma.from_documents(documents=chunks, embedding=embeddings)
     return vector_store
 
 
@@ -212,7 +213,6 @@ def save_button():
             file_name='chat_history.txt',
             mime='text/plain',
         )
-    os.remove('chat_history.txt')
 
 
 # save the SQL Queries to a text file if button pressed
@@ -229,7 +229,35 @@ def download_sql():
             file_name='sql_queries.txt',
             mime='text/plain',
         )
-    os.remove('sql_queries.txt')
+
+
+def load_chat_history(hist_file):
+    chat_history = hist_file.read().decode("utf-8")
+
+    ai_sub1 = f"AIMessage(content='"
+    hu_sub1 = f"HumanMessage(content='"
+    e_sub2 = f"')"
+
+    ai_s = str(re.escape(ai_sub1))
+    hu_s = str(re.escape(hu_sub1))
+    e = str(re.escape(e_sub2))
+
+    ai_res = re.findall(ai_s+"(.*)"+e, chat_history)
+    hu_res = re.findall(hu_s+"(.*)"+e, chat_history)
+
+    ai_hist = []
+    for content in ai_res:
+        ai_hist.append(AIMessage(content=content))
+
+    hu_hist = []
+    for content in hu_res:
+        hu_hist.append(HumanMessage(content=content))
+
+    hist = [None]*(len(ai_hist)+len(hu_hist))
+    hist[::2] = ai_hist
+    hist[1::2] = hu_hist
+
+    return hist
 
 
 
@@ -242,7 +270,13 @@ def custom_format(option):
     return f"{option}"
 
 # instantiate chat_history if not done already (per session)
-if 'chat_history' not in st.session_state:
+# if 'chat_history' not in st.session_state:
+#     st.session_state.chat_history = [AIMessage(content="Hello, I am a chatbot used to query your data. How may I assist you?")]
+
+hist_file = st.file_uploader('Select Saved Chat History')
+if hist_file:
+    st.session_state.chat_history = load_chat_history(hist_file=hist_file)
+elif 'chat_history' not in st.session_state:
     st.session_state.chat_history = [AIMessage(content="Hello, I am a chatbot used to query your data. How may I assist you?")]
 
 # store SQL Queries
@@ -337,8 +371,7 @@ elif selected_option == "MySQL DB":
         st.session_state.sql_queries = ["Below are SQL Queries ran to Generate Responses: \n\n\n"]
 
     with st.sidebar:
-        st.warning('MySQL Database has to already be present in a MySQL server', icon="⚠️")
-        st.warning("If running from the cloud, MySQL data source is not supported (not 'localhost')", icon="⚠️")
+        st.warning('MySQL Database has to already be present in local MySQL instance', icon="⚠️")
         un = st.text_input("MySQL Username", autocomplete='root', placeholder="root")
         pw = st.text_input("MySQL Password", type='password', placeholder='pass')
         pn = st.text_input("MySQL Port Number", autocomplete='3306', placeholder="3306")
