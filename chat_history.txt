@@ -1,3 +1,0 @@
-AIMessage(content='Hello, I am a chatbot used to query your data. How may I assist you?')
-HumanMessage(content='How many tracks are there?')
-AIMessage(content='There are 3503 tracks in the database.')

@@ -381,10 +381,11 @@ elif selected_option == "MySQL DB":
             sql_query = get_sql_chain(database=data)
         sql_user_input = st.chat_input("Query MySQL Database...")
         if sql_user_input is not None and sql_user_input != "":
-            query = sql_query.invoke({
-                'context': st.session_state.chat_history,
-                'question': sql_user_input
-            })
+            with st.spinner('Generating SQL Query...'):
+                query = sql_query.invoke({
+                    'context': st.session_state.chat_history,
+                    'question': sql_user_input
+                })
             with st.spinner('Generating Response...'):
                 nat_response = get_sql_full_pipeline(database=data, sql_chain=sql_query)
                 nat_lang = nat_response.invoke({
