@@ -198,7 +198,7 @@ def display_messages():
 
 # save the chat history to a text file if button pressed
 def save_button():
-    text_file = open('chat_history.txt', mode='w')
+    text_file = open('tmp_chat_history.txt', mode='w')
     for i in range(len(st.session_state.chat_history)):
         if i%2 == 0:
             text_file.write('AIMessage(' + str(st.session_state.chat_history[i]) + ')\n')
@@ -206,29 +206,31 @@ def save_button():
             text_file.write('HumanMessage(' + str(st.session_state.chat_history[i]) + ')\n')
     text_file.close()
 
-    with open('chat_history.txt') as f:
+    with open('tmp_chat_history.txt') as f:
         st.download_button(
             label='Save Chat History to Text File',
             data=f,
             file_name='chat_history.txt',
             mime='text/plain',
         )
+    os.remove('tmp_chat_history.txt')
 
 
 # save the SQL Queries to a text file if button pressed
 def download_sql():
-    sql_file = open('sql_queries.txt', mode='w')
+    sql_file = open('tmp_sql_queries.txt', mode='w')
     for i in range(len(st.session_state.sql_queries)):
         sql_file.write(f"{st.session_state.sql_queries[i]}\n\n\n")
     sql_file.close()
 
-    with open('sql_queries.txt') as f:
+    with open('tmp_sql_queries.txt') as f:
         st.download_button(
             label='Save SQL Queries to Text File',
             data=f,
             file_name='sql_queries.txt',
             mime='text/plain',
         )
+    os.remove('tmp_sql_queries.txt')
 
 # load read and parse the saved chat_history file to be used as context in st.session_state.chat_history
 def load_chat_history(hist_file):
