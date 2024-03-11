@@ -266,6 +266,7 @@ def load_chat_history(hist_file):
 # ----------------- UI ----------------------------
 st.set_page_config(page_title="Data Chatter", page_icon="🤖")
 st.title("Query Your Data")
+st.caption("Refer to GitHub Repository for Demo Videos")
 
 # define how options for radio button appears
 def custom_format(option):
