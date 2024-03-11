@@ -55,3 +55,5 @@ Go To: https://chat-w-data.streamlit.app/
 CAUTION: Currently, all data sources currently work on cloud except MySQL. Since the implementation of MySQL would use a local instance, it's 
 not possible to connect to localhost. 
 ```
+
+<b>Demonstraion videos are provided in the 'demo_videos' folder on how to use the application</b>
